@@ -1,4 +1,22 @@
-﻿function set-stigobject{
+﻿function plink{
+  param(
+    [Parameter(Mandatory=$True)]
+    [ValidateNotNullOrEmpty()]
+    [string] $remoteHost,
+    [Parameter(Mandatory=$True)]
+    [ValidateNotNullOrEmpty()]
+    [string] $login,
+    [Parameter(Mandatory=$True)]
+    [ValidateNotNullOrEmpty()]
+    [string] $passwd,
+    [Parameter(Mandatory=$True)]
+    [ValidateNotNullOrEmpty()]
+    [string] $command)
+  & c:\Tools\plink.exe -ssh $remoteHost -l $login -pw $passwd $command
+  return
+}
+
+function set-stigobject{
     param($status,$comment)
     New-Object psobject -Property @{
         Status = $status;
@@ -123,7 +141,7 @@ function V-63221{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $ClientAliveCountMax = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^ClientAliveCountMax" /etc/ssh/sshd_config'
+    $ClientAliveCountMax = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^ClientAliveCountMax" /etc/ssh/sshd_config'
     if($ClientAliveCountMax -ne 'ClientAliveCountMax 3'){
         $comment = "ClientAliveCountMax value: " + $ClientAliveCountMax
         $object = set-stigobject -status "Open" -comment $comment
@@ -141,7 +159,7 @@ function V-63223{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $ClientAliveInterval = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^ClientAliveInterval" /etc/ssh/sshd_config'
+    $ClientAliveInterval = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^ClientAliveInterval" /etc/ssh/sshd_config'
     if($ClientAliveInterval -ne 'ClientAliveInterval 200'){
         $comment = "ClientAliveInterval value: " + $ClientAliveInterval
         $object = set-stigobject -status "Open" -comment $comment
@@ -188,7 +206,7 @@ function V-63187{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $Banner = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^Banner" /etc/ssh/sshd_config'
+    $Banner = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^Banner" /etc/ssh/sshd_config'
     if($Banner -ne 'Banner /etc/issue'){
         $comment = "Banner value: " + $Banner
         $object = set-stigobject -status "Open" -comment $comment
@@ -205,7 +223,7 @@ function V-63189{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $Ciphers = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^Ciphers" /etc/ssh/sshd_config'
+    $Ciphers = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^Ciphers" /etc/ssh/sshd_config'
     if($Ciphers -ne 'Ciphers aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,aes192-cbc,aes256-cbc'){
         $comment = "Ciphers value: " + $Ciphers
         $object = set-stigobject -status "Open" -comment $comment
@@ -222,7 +240,7 @@ function V-63191{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $Protocol = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^Protocol" /etc/ssh/sshd_config'
+    $Protocol = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^Protocol" /etc/ssh/sshd_config'
     if($Protocol -ne 'Protocol 2'){
         $comment = "Protocol value: " + $Protocol
         $object = set-stigobject -status "Open" -comment $comment
@@ -239,7 +257,7 @@ function V-63193{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $IgnoreRhosts = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^IgnoreRhosts" /etc/ssh/sshd_config'
+    $IgnoreRhosts = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^IgnoreRhosts" /etc/ssh/sshd_config'
     if($IgnoreRhosts -ne 'IgnoreRhosts yes'){
         $comment = "IgnoreRhosts value: " + $IgnoreRhosts
         $object = set-stigobject -status "Open" -comment $comment
@@ -256,7 +274,7 @@ function V-63195{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $HostbasedAuthentication = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^HostbasedAuthentication" /etc/ssh/sshd_config'
+    $HostbasedAuthentication = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^HostbasedAuthentication" /etc/ssh/sshd_config'
     if($HostbasedAuthentication -ne 'HostbasedAuthentication no'){
         $comment = "HostbasedAuthentication value: " + $HostbasedAuthentication
         $object = set-stigobject -status "Open" -comment $comment
@@ -274,7 +292,7 @@ function V-63197{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $PermitRootLogin = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^PermitRootLogin" /etc/ssh/sshd_config'
+    $PermitRootLogin = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^PermitRootLogin" /etc/ssh/sshd_config'
     if($PermitRootLogin -ne 'PermitRootLogin no'){
         $comment = "Pending active directory configuration on host."+"`n`n"+"PermitRootLogin value: " + $PermitRootLogin
         $object = set-stigobject -status "Open" -comment $comment
@@ -291,7 +309,7 @@ function V-63199{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $PermitEmptyPasswords = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^PermitEmptyPasswords" /etc/ssh/sshd_config'
+    $PermitEmptyPasswords = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^PermitEmptyPasswords" /etc/ssh/sshd_config'
     if($PermitEmptyPasswords -ne 'PermitEmptyPasswords no'){
         $comment = "PermitEmptyPasswords value: " + $PermitEmptyPasswords
         $object = set-stigobject -status "Open" -comment $comment
@@ -309,7 +327,7 @@ function V-63201{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $PermitUserEnvironment = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^PermitUserEnvironment" /etc/ssh/sshd_config'
+    $PermitUserEnvironment = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^PermitUserEnvironment" /etc/ssh/sshd_config'
     if($PermitUserEnvironment -ne 'PermitUserEnvironment no'){
         $comment = "PermitUserEnvironment value: " + $PermitUserEnvironment
         $object = set-stigobject -status "Open" -comment $comment
@@ -327,7 +345,7 @@ function V-63203{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $MACs = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^MACs" /etc/ssh/sshd_config'
+    $MACs = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^MACs" /etc/ssh/sshd_config'
     if(!$MACs.Contains('hmac-sha2-256') -and !$MACs.Contains('hmac-sha2-512') -and !$MACs.Contains('hmac-sha1')){
         $comment = "MACs value: " + $MACs
         $object = set-stigobject -status "Open" -comment $comment
@@ -345,7 +363,7 @@ function V-63205{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $GSSAPIAuthentication = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^GSSAPIAuthentication" /etc/ssh/sshd_config'
+    $GSSAPIAuthentication = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^GSSAPIAuthentication" /etc/ssh/sshd_config'
     if($GSSAPIAuthentication -ne 'GSSAPIAuthentication no'){
         $comment = "GSSAPIAuthentication value: " + $GSSAPIAuthentication
         $object = set-stigobject -status "Open" -comment $comment
@@ -363,7 +381,7 @@ function V-63207{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $KerberosAuthentication = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^KerberosAuthentication" /etc/ssh/sshd_config'
+    $KerberosAuthentication = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^KerberosAuthentication" /etc/ssh/sshd_config'
     if($KerberosAuthentication -ne 'KerberosAuthentication no'){
         $comment = "KerberosAuthentication value: " + $KerberosAuthentication
         $object = set-stigobject -status "Open" -comment $comment
@@ -381,7 +399,7 @@ function V-63209{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $StrictModes = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^StrictModes" /etc/ssh/sshd_config'
+    $StrictModes = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^StrictModes" /etc/ssh/sshd_config'
     if($StrictModes -ne 'StrictModes yes'){
         $comment = "StrictModes value: " + $StrictModes
         $object = set-stigobject -status "Open" -comment $comment
@@ -399,7 +417,7 @@ function V-63211{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $compression = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^Compression" /etc/ssh/sshd_config'
+    $compression = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^Compression" /etc/ssh/sshd_config'
     if($compression -ne 'compression no'){
         $comment = "Compression value: " + $compression
         $object = set-stigobject -status "Open" -comment $comment
@@ -417,7 +435,7 @@ function V-63213{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $GatewayPorts = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^GatewayPorts" /etc/ssh/sshd_config'
+    $GatewayPorts = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^GatewayPorts" /etc/ssh/sshd_config'
     if($GatewayPorts -ne 'GatewayPorts no'){
         $comment = "GatewayPorts value: $GatewayPorts"
         $object = set-stigobject -status "Open" -comment $comment
@@ -435,7 +453,7 @@ function V-63215{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $X11Forwarding = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^X11Forwarding" /etc/ssh/sshd_config'
+    $X11Forwarding = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^X11Forwarding" /etc/ssh/sshd_config'
     if($X11Forwarding -ne 'X11Forwarding no'){
     $comment = "X11Forwarding value: " + $X11Forwarding
         $object = set-stigobject -status "Open" -comment $comment
@@ -453,7 +471,7 @@ function V-63217{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $AcceptEnv = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^AcceptEnv" /etc/ssh/sshd_config'
+    $AcceptEnv = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^AcceptEnv" /etc/ssh/sshd_config'
     if($AcceptEnv -ne 'AcceptEnv'){
         $comment = "AcceptEnv value: " + $AcceptEnv
         $object = set-stigobject -status "Open" -comment $comment
@@ -471,7 +489,7 @@ function V-63219{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $PermitTunnel = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^PermitTunnel" /etc/ssh/sshd_config'
+    $PermitTunnel = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^PermitTunnel" /etc/ssh/sshd_config'
     if($PermitTunnel -ne 'PermitTunnel no'){
         $comment = "PermitTunnel value: " + $PermitTunnel
         $object = set-stigobject -status "Open" -comment $comment
@@ -489,7 +507,7 @@ function V-63225{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $MaxSessions = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^MaxSessions" /etc/ssh/sshd_config'
+    $MaxSessions = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^MaxSessions" /etc/ssh/sshd_config'
     if($MaxSessions -ne 'MaxSessions 1'){
         $comment = "MaxSessions value: " + $MaxSessions
         $object = set-stigobject -status "Open" -comment $comment
@@ -885,7 +903,7 @@ function V-63501{
     if($ssh.Running -eq $false){
         Start-VMHostService $ssh
     }
-    $Ciphers = echo y| plink -ssh $hostname -l root -pw $cred.GetNetworkCredential().password 'grep -i "^Ciphers" /etc/ssh/sshd_config'
+    $Ciphers = echo y| plink $hostname root $cred.GetNetworkCredential().password 'grep -i "^Ciphers" /etc/ssh/sshd_config'
     if($Ciphers -ne 'Ciphers aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,aes192-cbc,aes256-cbc'){
         $comment = "Ciphers value: " + $Ciphers
         $object = set-stigobject -status "Open" -comment $comment
